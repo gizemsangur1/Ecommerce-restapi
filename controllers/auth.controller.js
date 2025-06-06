@@ -37,3 +37,37 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: "Sunucu hatası", error: error.message });
   }
 };
+
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Tüm alanlar zorunludur." });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Geçersiz kimlik bilgileri." });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Geçersiz kimlik bilgileri." });
+    }
+
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Sunucu hatası", error: error.message });
+  }
+};
