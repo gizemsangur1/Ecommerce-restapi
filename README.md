@@ -1,0 +1,61 @@
+# E-commerce REST API
+
+This project is a basic e-commerce REST API built with Node.js and Express.  
+It includes essential features such as user registration/login, product management (CRUD), and admin authorization.
+
+---
+
+## Getting Started
+
+1. Clone the repository:  
+   ```bash
+   git clone <repo-url>
+2. Gerekli paketleri yükleyin:
+   ```bash
+   npm install
+3. .env dosyasını oluşturun ve aşağıdaki değişkenleri ekleyin:
+   ```bash
+   PORT=5000
+   MONGODB_URI=<Your MongoDB connection string>
+   JWT_SECRET=<Your JWT secret key>
+4. npm start
+
+## API Features
+User Registration and Login
+
+JWT-based Authentication
+
+Admin Authorization for product creation, update, and deletion
+
+Product Listing
+
+## Technologies Used
+Node.js
+
+Express.js
+
+MongoDB & Mongoose
+
+JSON Web Token (JWT)
+
+## To-Do List
+1.Order Management
+
+2.User Profile and Address Management
+
+3.Product Categories and Filtering
+
+4.Review and Rating System
+
+5.Favorites / Wishlist System
+
+6.Stock Management and Notifications
+
+7.Payment Integration
+
+8.Security Enhancements
+
+9.Reporting & Analytics
+
+10.API Documentation
+
