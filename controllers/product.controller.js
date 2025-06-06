@@ -10,7 +10,7 @@ exports.createProduct = async (req, res) => {
       price,
       stock,
       category,
-      image
+      image,
     });
 
     res.status(201).json(product);
@@ -24,6 +24,46 @@ exports.getAllProducts = async (req, res) => {
     const products = await Product.find({});
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: "Ürünler getirilemedi", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Ürünler getirilemedi", error: error.message });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const updates = req.body;
+
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Ürün bulunamadı" });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Ürün güncellenemedi", error: error.message });
+  }
+};
+
+exports.deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Ürün bulunamadı" });
+    }
+
+    res.json({ message: "Ürün silindi" });
+  } catch (error) {
+    res.status(500).json({ message: "Ürün silinemedi", error: error.message });
   }
 };
