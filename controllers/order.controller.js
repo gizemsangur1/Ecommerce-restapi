@@ -23,6 +23,11 @@ exports.createOrder = async (req, res) => {
   try {
     const { orderItems, totalPrice } = req.body;
 
+     const categoryExists = await Category.findById(category);
+    if (!categoryExists) {
+      return res.status(400).json({ message: "Geçersiz kategori ID." });
+    }
+
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ message: "Sipariş öğeleri boş olamaz." });
     }
@@ -50,6 +55,7 @@ exports.createOrder = async (req, res) => {
       user: req.user.id,
       orderItems,
       totalPrice,
+      category,
     });
 
     res.status(201).json(order);
