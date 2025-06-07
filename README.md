@@ -57,7 +57,7 @@ JSON Web Token (JWT)
 
 9. Security Enhancements
 
-9.Reporting & Analytics
-
-10.API Documentation
+10.Reporting & Analytics
+ 
+11.API Documentation
 
