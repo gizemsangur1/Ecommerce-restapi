@@ -20,6 +20,10 @@ const productSchema = new mongoose.Schema({
     required: true,
     default: 0
   },
+   stockThreshold: {
+    type: Number,
+    default: 5,
+  },
   category: {
     type: String,
     required: true

@@ -1,5 +1,23 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const sendEmail = require("../utils/mailSender"); 
+
+const notifyLowStock = async (product) => {
+  const subject = `Low Stock Alert: ${product.name}`;
+  const text = `Attention! The stock for product "${product.name}" is low. Only ${product.stock} left in stock. Please restock soon.`;
+  
+  try {
+    await sendEmail({
+      to: process.env.ADMIN_EMAIL, 
+      subject,
+      text,
+      html: `<p>${text}</p>`
+    });
+    console.log(`Low stock alert email sent for product: ${product.name}`);
+  } catch (error) {
+    console.error("Failed to send low stock email:", error);
+  }
+};
 
 exports.createOrder = async (req, res) => {
   try {
@@ -21,6 +39,10 @@ exports.createOrder = async (req, res) => {
 
       product.stock -= item.quantity;
       await product.save();
+
+      if (product.stock <= product.stockThreshold) {
+        await notifyLowStock(product);
+      }
     }
 
     const order = await Order.create({
@@ -34,6 +56,7 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ message: "Sipariş oluşturulamadı", error: error.message });
   }
 };
+
 
 
 exports.getUserOrders = async (req, res) => {
