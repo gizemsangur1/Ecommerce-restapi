@@ -31,27 +31,63 @@ exports.getUserOrders = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({}).populate("user", "name email").populate("orderItems.product", "name price");
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .populate("orderItems.product", "name price");
+
     res.json(orders);
   } catch (error) {
-    res.status(500).json({ message: "Siparişler getirilemedi", error: error.message });
+    res.status(500).json({ message: "Tüm siparişler alınamadı", error: error.message });
   }
 };
 
+
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
     const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Sipariş bulunamadı" });
+
+    order.status = req.body.status || order.status;
+
+    const updated = await order.save();
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Durum güncellenemedi", error: error.message });
+  }
+};
+
+
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("user", "name email")
+      .populate("orderItems.product", "name price");
 
     if (!order) {
-      return res.status(404).json({ message: "Sipariş bulunamadı." });
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    order.status = status || order.status;
-    await order.save();
+    if (order.user._id.toString() !== req.user.id) {
+      return res.status(401).json({ message: "Unauthorized access" });
+    }
 
     res.json(order);
   } catch (error) {
-    res.status(500).json({ message: "Sipariş durumu güncellenemedi", error: error.message });
+    res.status(500).json({ message: "Failed to get order", error: error.message });
+  }
+};
+
+exports.markOrderAsPaid = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Sipariş bulunamadı" });
+
+    order.isPaid = true;
+    order.paidAt = Date.now();
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ message: "Ödeme durumu güncellenemedi", error: error.message });
   }
 };
