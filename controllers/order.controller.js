@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -8,8 +9,22 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: "Sipariş öğeleri boş olamaz." });
     }
 
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(400).json({ message: `Product with id ${item.product} not found.` });
+      }
+
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ message: `Product ${product.name} stokta yetersiz.` });
+      }
+
+      product.stock -= item.quantity;
+      await product.save();
+    }
+
     const order = await Order.create({
-      user: req.user.id, 
+      user: req.user.id,
       orderItems,
       totalPrice,
     });
@@ -19,6 +34,7 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ message: "Sipariş oluşturulamadı", error: error.message });
   }
 };
+
 
 exports.getUserOrders = async (req, res) => {
   try {
@@ -44,17 +60,27 @@ exports.getAllOrders = async (req, res) => {
 
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate("user", "email name");
     if (!order) return res.status(404).json({ message: "Sipariş bulunamadı" });
 
     order.status = req.body.status || order.status;
 
     const updated = await order.save();
+
+    await sendEmail({
+      to: order.user.email,
+      subject: `Your order #${order._id} status updated`,
+      text: `Hello ${order.user.name}, your order status is now: ${order.status}.`,
+      html: `<p>Hello <strong>${order.user.name}</strong>,</p>
+             <p>Your order status is now: <strong>${order.status}</strong>.</p>`,
+    });
+
     res.json(updated);
   } catch (error) {
     res.status(500).json({ message: "Durum güncellenemedi", error: error.message });
   }
 };
+
 
 
 exports.getOrderById = async (req, res) => {
@@ -89,5 +115,48 @@ exports.markOrderAsPaid = async (req, res) => {
     res.json(updatedOrder);
   } catch (error) {
     res.status(500).json({ message: "Ödeme durumu güncellenemedi", error: error.message });
+  }
+};
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Sipariş bulunamadı" });
+
+    if (order.status === "Cancelled") {
+      return res.status(400).json({ message: "Sipariş zaten iptal edilmiş." });
+    }
+
+    order.status = "Cancelled";
+
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        product.countInStock += item.quantity;  
+        await product.save();
+      }
+    }
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ message: "Sipariş iptali başarısız", error: error.message });
+  }
+};
+
+exports.addShippingInfo = async (req, res) => {
+  try {
+    const { trackingNumber, carrier } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Sipariş bulunamadı" });
+
+    order.trackingNumber = trackingNumber;
+    order.carrier = carrier;
+    order.status = "Shipped";
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ message: "Kargo bilgisi eklenemedi", error: error.message });
   }
 };
