@@ -21,14 +21,13 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find().populate("category", "name");
     res.json(products);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Ürünler getirilemedi", error: error.message });
+    res.status(500).json({ message: "Ürünler alınamadı", error: error.message });
   }
 };
+
 
 exports.updateProduct = async (req, res) => {
   try {
@@ -128,5 +127,15 @@ exports.getBestSellers = async (req, res) => {
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "En çok satan ürünler alınamadı", error: error.message });
+  }
+};
+
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const products = await Product.find({ category: categoryId }).populate("category", "name");
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Kategoriye göre ürünler alınamadı", error: error.message });
   }
 };

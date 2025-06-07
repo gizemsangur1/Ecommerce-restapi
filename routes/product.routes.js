@@ -10,5 +10,7 @@ router.get("/bestsellers", productController.getBestSellers);
 router.put("/:id", protect, admin, productController.updateProduct);
 router.delete("/:id", protect, admin, productController.deleteProduct);
 router.put("/:id/images", protect, admin, upload.array("images", 5), productController.uploadProductImages);
+router.get("/category/:categoryId", productController.getProductsByCategory);
+
 
 module.exports = router;
