@@ -6,6 +6,8 @@ const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
 const orderRoutes = require("./routes/order.routes");
 const reportRoutes = require("./routes/report.routes");
+const categoryRoutes = require("./routes/category.routes");
+
 
 
 
@@ -16,6 +18,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/categories", categoryRoutes);
+
 
 app.get("/", (req, res) => res.send("E-Ticaret API çalışıyor"));
 
