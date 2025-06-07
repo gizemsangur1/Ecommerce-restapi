@@ -31,6 +31,10 @@ const productSchema = new mongoose.Schema({
   image: {
     type: [String],
     default: ""
+  },
+  sold:{
+    type:Number,
+    default:0,
   }
 }, { timestamps: true });
 

@@ -38,6 +38,7 @@ exports.createOrder = async (req, res) => {
       }
 
       product.stock -= item.quantity;
+      product.sold += item.quantity;
       await product.save();
 
       if (product.stock <= product.stockThreshold) {
