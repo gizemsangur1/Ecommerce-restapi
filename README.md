@@ -39,23 +39,25 @@ MongoDB & Mongoose
 JSON Web Token (JWT)
 
 ## To-Do List
-1.Order Management
+1. Order Management✅
 
-2.User Profile and Address Management
+2. User Profile Management✅
 
-3.Product Categories and Filtering
+3. Address Management
 
-4.Review and Rating System
+4. Product Categories and Filtering✅
 
-5.Favorites / Wishlist System
+5. Review and Rating System
 
-6.Stock Management and Notifications
+6. Favorites / Wishlist System
 
-7.Payment Integration
+7. Stock Management and Notifications✅
 
-8.Security Enhancements
+8. Payment Integration
 
-9.Reporting & Analytics
+9. Security Enhancements
 
-10.API Documentation
+10. Reporting & Analytics
+ 
+11. API Documentation
 
