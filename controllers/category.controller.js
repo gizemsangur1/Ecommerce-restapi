@@ -1,4 +1,5 @@
 const Category = require("../models/Category");
+const Product = require("../models/Product");
 
 exports.createCategory = async (req, res) => {
   try {
@@ -37,15 +38,22 @@ exports.getCategoryById = async (req, res) => {
 
 exports.updateCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name } = req.body;
+    const categoryId = req.params.id;
+
+    if (!name) {
+      return res.status(400).json({ message: "Kategori adı gerekli." });
+    }
 
     const updated = await Category.findByIdAndUpdate(
-      req.params.id,
-      { name, description },
-      { new: true }
+      categoryId,
+      { name },
+      { new: true } 
     );
 
-    if (!updated) return res.status(404).json({ message: "Kategori bulunamadı" });
+    if (!updated) {
+      return res.status(404).json({ message: "Kategori bulunamadı." });
+    }
 
     res.json(updated);
   } catch (error) {
@@ -53,12 +61,26 @@ exports.updateCategory = async (req, res) => {
   }
 };
 
+
 exports.deleteCategory = async (req, res) => {
   try {
-    const deleted = await Category.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Kategori bulunamadı" });
+    const categoryId = req.params.id;
 
-    res.json({ message: "Kategori silindi" });
+    const productCount = await Product.countDocuments({ category: categoryId });
+
+    if (productCount > 0) {
+      return res.status(400).json({
+        message: "Bu kategoriye bağlı ürünler var. Önce ürünleri silmelisiniz.",
+      });
+    }
+
+    const deleted = await Category.findByIdAndDelete(categoryId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Kategori bulunamadı." });
+    }
+
+    res.json({ message: "Kategori başarıyla silindi." });
   } catch (error) {
     res.status(500).json({ message: "Kategori silinemedi", error: error.message });
   }
