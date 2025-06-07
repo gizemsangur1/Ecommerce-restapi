@@ -99,3 +99,21 @@ exports.getFilteredProducts = async (req, res) => {
     res.status(500).json({ message: "Ürünler alınamadı", error: error.message });
   }
 };
+
+exports.uploadProductImages = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: "Ürün bulunamadı." });
+
+    const imagePaths = req.files.map(file => `/uploads/products/${file.filename}`);
+    product.images = [...product.images, ...imagePaths];
+
+    await product.save();
+
+    res.json({ message: "Görseller yüklendi", images: product.images });
+  } catch (error) {
+    res.status(500).json({ message: "Görseller yüklenemedi", error: error.message });
+  }
+};
+
