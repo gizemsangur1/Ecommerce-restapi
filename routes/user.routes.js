@@ -11,5 +11,6 @@ router.put("/profile", protect, userController.updateUserProfile);
 router.put("/profile/password", protect, userController.changePassword);
 router.put("/profile/photo", protect, upload.single("profilePicture"), userController.updateProfilePicture);
 router.delete("/profile", protect, userController.deleteUserAccount);
+router.get("/",  userController.getAllUsers);
 
 module.exports = router;
